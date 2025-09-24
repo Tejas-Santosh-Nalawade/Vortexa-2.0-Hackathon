@@ -17,6 +17,7 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   if (!isLoaded) {
@@ -26,6 +27,9 @@ export default function SignIn() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!isLoaded) return;
+
+    setLoading(true);
+    setError("");
 
     try {
       const result = await signIn.create({
@@ -38,111 +42,137 @@ export default function SignIn() {
         router.push("/dashboard");
       } else {
         console.error(JSON.stringify(result, null, 2));
+        setError("Sign in incomplete. Please try again.");
       }
     } catch (err: any) {
       console.error("Error signing in:", err);
-      setError(err.errors?.[0]?.message || "An error occurred during sign in");
+      setError(err.errors?.[0]?.message || "Invalid email or password");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4">
-      <Card className="w-full max-w-md bg-gray-900/80 backdrop-blur-sm border-gray-700 shadow-xl">
-        <CardHeader className="space-y-1">
-          <div className="flex justify-center mb-4">
-            <div className="p-3 rounded-full bg-blue-500/10">
-              <Lock className="w-6 h-6 text-blue-400" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-purple-50/30 to-slate-100 dark:from-slate-900 dark:via-purple-900/10 dark:to-slate-800 p-4">
+      <div className="w-full max-w-md">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center space-x-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+              <Lock className="w-6 h-6 text-white" />
             </div>
+            <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              MoonDiary
+            </span>
           </div>
-          <CardTitle className="text-2xl font-bold text-center text-gray-100">
-            Welcome Back
-          </CardTitle>
-          <p className="text-sm text-center text-gray-400">
-            Sign in to access your account
-          </p>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <Alert variant="destructive" className="bg-red-500/10 border-red-500/50 text-red-200">
-                <AlertDescription className="text-sm">{error}</AlertDescription>
-              </Alert>
-            )}
-            
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-300">Email</Label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-500" />
-                </div>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="your@email.com"
-                  value={emailAddress}
-                  onChange={(e) => setEmailAddress(e.target.value)}
-                  className="pl-10 bg-gray-800/50 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500"
-                  required
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-gray-300">Password</Label>
-                <Link 
-                  href="/forgot-password" 
-                  className="text-sm text-blue-400 hover:text-blue-300 hover:underline"
-                >
-                  Forgot password?
-                </Link>
-              </div>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-500" />
-                </div>
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 bg-gray-800/50 border-gray-700 text-gray-200 placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-400"
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5" />
-                  ) : (
-                    <Eye className="h-5 w-5" />
-                  )}
-                </button>
-              </div>
-            </div>
+        </div>
 
-            <Button 
-              type="submit" 
-              className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
-            >
-              Sign In
-            </Button>
-          </form>
-        </CardContent>
-        <CardFooter className="justify-center pt-4 border-t border-gray-800">
-          <p className="text-sm text-gray-400">
-            Don't have an account?{" "}
-            <Link 
-              href="/sign-up" 
-              className="font-medium text-blue-400 hover:text-blue-300 hover:underline"
-            >
-              Sign up
-            </Link>
-          </p>
-        </CardFooter>
-      </Card>
+        <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-0 shadow-xl">
+          <CardHeader className="space-y-1 text-center">
+            <CardTitle className="text-2xl font-bold text-slate-900 dark:text-white">
+              Welcome Back
+            </CardTitle>
+            <p className="text-slate-600 dark:text-slate-300">
+              Sign in to continue your wellness journey
+            </p>
+          </CardHeader>
+          
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <Alert variant="destructive" className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
+                  <AlertDescription className="text-red-800 dark:text-red-200">
+                    {error}
+                  </AlertDescription>
+                </Alert>
+              )}
+              
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-slate-700 dark:text-slate-300 font-medium">
+                  Email Address
+                </Label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Mail className="h-5 w-5 text-slate-400" />
+                  </div>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={emailAddress}
+                    onChange={(e) => setEmailAddress(e.target.value)}
+                    className="pl-10 h-12 bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 focus:border-purple-500 focus:ring-purple-500"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-slate-700 dark:text-slate-300 font-medium">
+                  Password
+                </Label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-slate-400" />
+                  </div>
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10 pr-10 h-12 bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 focus:border-purple-500 focus:ring-purple-500"
+                    required
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                    disabled={loading}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"
+                disabled={loading}
+              >
+                {loading ? "Signing In..." : "Sign In"}
+              </Button>
+            </form>
+          </CardContent>
+          
+          <CardFooter className="justify-center">
+            <p className="text-slate-600 dark:text-slate-300">
+              Don't have an account?{" "}
+              <Link 
+                href="/sign-up" 
+                className="font-semibold text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
+              >
+                Sign up
+              </Link>
+            </p>
+          </CardFooter>
+        </Card>
+
+        {/* Back to home */}
+        <div className="text-center mt-6">
+          <Link 
+            href="/" 
+            className="text-slate-600 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400 text-sm font-medium"
+          >
+            ← Back to home
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
