@@ -25,6 +25,7 @@ mongoose.connect(process.env.MONGODB_URI)
 const allowedOrigins = [
   'https://vortexa-2-0-hackathon.vercel.app', 
   'https://journee-498435245361.asia-south1.run.app',
+  'https://vortexa-2-0-hackathon-7hnq.vercel.app',
   'http://localhost:5173',
 ];
 
