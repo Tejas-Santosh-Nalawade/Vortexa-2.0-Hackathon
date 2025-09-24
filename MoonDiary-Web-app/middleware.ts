@@ -8,22 +8,51 @@ const isPublicRoute = createRouteMatcher([
   "/api/webhook(.*)"
 ]);
 
-const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
+export default authMiddleware({
+  publicRoutes,
+  async afterAuth(auth, req) {
+    // Handle unauthenticated users trying to access protected routes
+    if (!auth.userId && !publicRoutes.includes(req.nextUrl.pathname)) {
+      return NextResponse.redirect(new URL("/sign-in", req.url));
+    }
 
-export default clerkMiddleware(async (auth, req) => {
-  const { userId } = auth();
-  
-  // If user is not authenticated and trying to access protected route
-  if (!userId && !isPublicRoute(req)) {
-    return NextResponse.redirect(new URL("/sign-in", req.url));
-  }
+    if (auth.userId) {
+      try {
+        const user = await clerkClient.users.getUser(auth.userId);
+        const role = user.publicMetadata.role as string | undefined;
 
-  // If user is authenticated
-  if (userId) {
-    try {
-      // Redirect authenticated users away from public routes (except API)
-      if (isPublicRoute(req) && !req.nextUrl.pathname.startsWith("/api")) {
-        return NextResponse.redirect(new URL("/dashboard", req.url));
+        // Admin role redirection logic
+        if (role === "admin" && req.nextUrl.pathname === "/dashboard") {
+          return NextResponse.redirect(new URL("/admin/dashboard", req.url));
+        }
+
+        // Prevent non-admin users from accessing admin routes
+        if (role !== "admin" && req.nextUrl.pathname.startsWith("/admin")) {
+          return NextResponse.redirect(new URL("/dashboard", req.url));
+        }
+
+        // Redirect authenticated users away from auth pages
+        if (["/sign-in", "/sign-up"].includes(req.nextUrl.pathname)) {
+          return NextResponse.redirect(
+            new URL(
+              role === "admin" ? "/admin/dashboard" : "/dashboard",
+              req.url
+            )
+          );
+        }
+
+        // Redirect authenticated users from home page to dashboard
+        if (req.nextUrl.pathname === "/" && auth.userId) {
+          return NextResponse.redirect(
+            new URL(
+              role === "admin" ? "/admin/dashboard" : "/dashboard",
+              req.url
+            )
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching user data from Clerk:", error);
+        return NextResponse.redirect(new URL("/error", req.url));
       }
 
       // Handle admin routes
