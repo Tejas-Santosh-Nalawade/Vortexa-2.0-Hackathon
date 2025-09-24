@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
 import { 
@@ -20,14 +20,12 @@ import {
   Check,
   Star,
   ArrowRight,
-  Mail,
-  Phone,
-  MapPin,
   Facebook,
   Twitter,
   Instagram,
   Linkedin
 } from "lucide-react";
+import Link from "next/link";
 
 export default function LandingPage() {
   const [email, setEmail] = useState("");
@@ -43,22 +41,22 @@ export default function LandingPage() {
 
   const features = [
     {
-      icon: <Lock className="w-8 h-8 text-teal-600" />,
+      icon: <Lock className="w-8 h-8 text-violet-400" />,
       title: "Secure Journaling",
       description: "End-to-end encrypted personal journal with military-grade security"
     },
     {
-      icon: <Brain className="w-8 h-8 text-purple-600" />,
+      icon: <Brain className="w-8 h-8 text-lavender-400" />,
       title: "Emotional Analysis",
       description: "AI insights for mood tracking and emotional pattern recognition"
     },
     {
-      icon: <MessageCircle className="w-8 h-8 text-teal-600" />,
+      icon: <MessageCircle className="w-8 h-8 text-violet-400" />,
       title: "Empathetic Chatbot",
       description: "24/7 conversational support with understanding AI companion"
     },
     {
-      icon: <Shield className="w-8 h-8 text-purple-600" />,
+      icon: <Shield className="w-8 h-8 text-lavender-400" />,
       title: "Privacy First",
       description: "Your data stays private, always. No third-party sharing ever"
     }
@@ -91,13 +89,13 @@ export default function LandingPage() {
     {
       name: "Sarah M.",
       role: "Therapy Client",
-      content: "MindSpace has helped me understand my emotional patterns better than ever before. The AI insights are incredibly accurate and helpful.",
+      content: "MoonDairy has helped me understand my emotional patterns better than ever before. The AI insights are incredibly accurate and helpful.",
       rating: 5
     },
     {
       name: "Dr. James Wilson",
       role: "Licensed Therapist",
-      content: "I recommend MindSpace to my clients. It's a powerful tool for self-reflection and emotional awareness with top-notch privacy protection.",
+      content: "I recommend MoonDairy to my clients. It's a powerful tool for self-reflection and emotional awareness with top-notch privacy protection.",
       rating: 5
     },
     {
@@ -219,25 +217,25 @@ export default function LandingPage() {
                     <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-2">
                       <PenTool className="w-6 h-6 text-teal-600" />
                     </div>
-                    <p className="text-sm font-medium text-gray-700">Daily Journaling</p>
+                    <p className="text-sm font-medium text-gray-300">Daily Journaling</p>
                   </div>
                   <div className="text-center">
                     <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
                       <Brain className="w-6 h-6 text-purple-600" />
                     </div>
-                    <p className="text-sm font-medium text-gray-700">AI Insights</p>
+                    <p className="text-sm font-medium text-gray-300">AI Insights</p>
                   </div>
                   <div className="text-center">
                     <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-2">
                       <Heart className="w-6 h-6 text-teal-600" />
                     </div>
-                    <p className="text-sm font-medium text-gray-700">Emotional Support</p>
+                    <p className="text-sm font-medium text-gray-300">Emotional Support</p>
                   </div>
                   <div className="text-center">
                     <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
                       <Shield className="w-6 h-6 text-purple-600" />
                     </div>
-                    <p className="text-sm font-medium text-gray-700">Complete Privacy</p>
+                    <p className="text-sm font-medium text-gray-300">Complete Privacy</p>
                   </div>
                 </div>
               </CardContent>
@@ -247,7 +245,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-16 px-4 bg-white/50">
+      <section id="features" className="py-16 px-4 bg-gray-900/50">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -258,7 +256,7 @@ export default function LandingPage() {
             <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-teal-600 to-purple-600 bg-clip-text text-transparent">
               Everything You Need for Emotional Wellness
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
               Discover powerful features designed to support your mental health journey
             </p>
           </motion.div>
@@ -277,8 +275,8 @@ export default function LandingPage() {
                     <div className="mb-4 flex justify-center">
                       {feature.icon}
                     </div>
-                    <h3 className="text-xl font-semibold mb-3 text-gray-800">{feature.title}</h3>
-                    <p className="text-gray-600">{feature.description}</p>
+                    <h3 className="text-xl font-semibold mb-3 text-gray-100">{feature.title}</h3>
+                    <p className="text-gray-300">{feature.description}</p>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -299,7 +297,7 @@ export default function LandingPage() {
             <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-teal-600 to-purple-600 bg-clip-text text-transparent">
               Your Journey to Better Mental Health
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
               Simple steps to start your emotional wellness journey
             </p>
           </motion.div>
@@ -318,8 +316,8 @@ export default function LandingPage() {
                     <div className="w-16 h-16 bg-gradient-to-r from-teal-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl">
                       {step.number}
                     </div>
-                    <h3 className="text-lg font-semibold mb-2 text-gray-800">{step.title}</h3>
-                    <p className="text-gray-600 text-sm">{step.description}</p>
+                    <h3 className="text-lg font-semibold mb-2 text-gray-100">{step.title}</h3>
+                    <p className="text-gray-300 text-sm">{step.description}</p>
                   </div>
                   {index < steps.length - 1 && (
                     <div className="hidden lg:block absolute top-8 left-full w-8 h-0.5 bg-gradient-to-r from-teal-600 to-purple-600 transform -translate-y-1/2">
@@ -334,7 +332,7 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-16 px-4 bg-white/50">
+      <section className="py-16 px-4 bg-gray-900/50">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -345,8 +343,8 @@ export default function LandingPage() {
             <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-teal-600 to-purple-600 bg-clip-text text-transparent">
               Trusted by Users & Professionals
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              See how MindSpace is making a difference in people's lives
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+              See how MoonDairy is making a difference in people's lives
             </p>
           </motion.div>
           
@@ -363,13 +361,13 @@ export default function LandingPage() {
                   <CardContent className="p-6">
                     <div className="flex mb-4">
                       {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                        <Star key={i} className="w-5 h-5 text-foreground" />
                       ))}
                     </div>
-                    <p className="text-gray-700 mb-4 italic">"{testimonial.content}"</p>
+                    <p className="text-gray-300 mb-4 italic">"{testimonial.content}"</p>
                     <div>
-                      <p className="font-semibold text-gray-800">{testimonial.name}</p>
-                      <p className="text-sm text-gray-600">{testimonial.role}</p>
+                      <p className="font-semibold text-gray-100">{testimonial.name}</p>
+                      <p className="text-sm text-gray-400">{testimonial.role}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -391,7 +389,7 @@ export default function LandingPage() {
             <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-teal-600 to-purple-600 bg-clip-text text-transparent">
               Choose Your Plan
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
               Start free, upgrade when you're ready. No hidden fees.
             </p>
           </motion.div>
@@ -418,7 +416,7 @@ export default function LandingPage() {
                         {plan.price}
                       </div>
                       {plan.name === "Premium Plan" && (
-                        <p className="text-sm text-gray-600">14-day free trial</p>
+                        <p className="text-sm text-gray-400">14-day free trial</p>
                       )}
                     </div>
                     <ul className="space-y-3 mb-8">
@@ -441,7 +439,7 @@ export default function LandingPage() {
       </section>
 
       {/* Security Section */}
-      <section id="security" className="py-16 px-4 bg-white/50">
+      <section id="security" className="py-16 px-4 bg-gray-900/50">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -452,7 +450,7 @@ export default function LandingPage() {
             <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-teal-600 to-purple-600 bg-clip-text text-transparent">
               Your Privacy is Our Priority
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
               Enterprise-grade security for your most personal thoughts
             </p>
           </motion.div>
@@ -468,8 +466,8 @@ export default function LandingPage() {
                 <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Lock className="w-8 h-8 text-teal-600" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-800">End-to-End Encryption</h3>
-                <p className="text-gray-600 text-sm">Your data is encrypted before it leaves your device</p>
+                <h3 className="text-lg font-semibold mb-2 text-gray-100">End-to-End Encryption</h3>
+                <p className="text-gray-300 text-sm">Your data is encrypted before it leaves your device</p>
               </motion.div>
               
               <motion.div
@@ -481,8 +479,8 @@ export default function LandingPage() {
                 <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Shield className="w-8 h-8 text-purple-600" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-800">No Data Sharing</h3>
-                <p className="text-gray-600 text-sm">We never share your data with third parties</p>
+                <h3 className="text-lg font-semibold mb-2 text-gray-100">No Data Sharing</h3>
+                <p className="text-gray-300 text-sm">We never share your data with third parties</p>
               </motion.div>
               
               <motion.div
@@ -494,8 +492,8 @@ export default function LandingPage() {
                 <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Check className="w-8 h-8 text-teal-600" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-800">GDPR Compliant</h3>
-                <p className="text-gray-600 text-sm">Full compliance with data protection regulations</p>
+                <h3 className="text-lg font-semibold mb-2 text-gray-100">GDPR Compliant</h3>
+                <p className="text-gray-300 text-sm">Full compliance with data protection regulations</p>
               </motion.div>
             </div>
             
@@ -505,10 +503,10 @@ export default function LandingPage() {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="text-center mt-12"
             >
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-300 mb-4">
                 Trusted by mental health professionals and users worldwide
               </p>
-              <div className="flex justify-center space-x-8 text-sm text-gray-500">
+              <div className="flex justify-center space-x-8 text-sm text-gray-400">
                 <span>✓ HIPAA Ready</span>
                 <span>✓ SOC 2 Type II</span>
                 <span>✓ ISO 27001</span>
@@ -520,7 +518,7 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 px-4 bg-gradient-to-r from-teal-600 to-purple-600">
+      <section className="py-16 px-4 bg-gradient-to-r from-violet-600 to-lavender-600">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -532,7 +530,7 @@ export default function LandingPage() {
               Start Your Journey Today
             </h2>
             <p className="text-xl mb-8 opacity-90">
-              Join thousands of users who have transformed their emotional wellness with MindSpace
+              Join thousands of users who have transformed their emotional wellness with MoonDairy
             </p>
             
             <form onSubmit={handleSignup} className="max-w-md mx-auto mb-6">
@@ -560,8 +558,13 @@ export default function LandingPage() {
                 <Button type="submit" className="w-full bg-white text-teal-600 hover:bg-gray-100 font-semibold">
                   Create Free Account
                 </Button>
-              </div>
-            </form>
+              </Link>
+              <Link href="/sign-in">
+                <Button variant="outline" className="w-full border-white text-white hover:bg-white hover:text-teal-600">
+                  Sign In
+                </Button>
+              </Link>
+            </div>
             
             <p className="text-sm opacity-75">
               By signing up, you agree to our{' '}
@@ -574,13 +577,13 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 px-4">
+      <footer className="bg-gray-950 text-white py-12 px-4">
         <div className="container mx-auto">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <Heart className="w-6 h-6 text-teal-400" />
-                <span className="text-xl font-bold">MindSpace</span>
+                <Heart className="w-6 h-6 text-violet-400" />
+                <span className="text-xl font-bold">MoonDairy</span>
               </div>
               <p className="text-gray-400 text-sm">
                 Your secure space for emotional wellness and personal growth.
@@ -590,30 +593,30 @@ export default function LandingPage() {
             <div>
               <h4 className="font-semibold mb-4">Product</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
-                <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
-                <li><a href="#security" className="hover:text-white transition-colors">Security</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">API</a></li>
+                <li><a href="#features" className="hover:text-violet-400 transition-colors">Features</a></li>
+                <li><a href="#pricing" className="hover:text-violet-400 transition-colors">Pricing</a></li>
+                <li><a href="#security" className="hover:text-violet-400 transition-colors">Security</a></li>
+                <li><a href="#" className="hover:text-violet-400 transition-colors">API</a></li>
               </ul>
             </div>
             
             <div>
               <h4 className="font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Community</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Status</a></li>
+                <li><a href="#" className="hover:text-violet-400 transition-colors">Help Center</a></li>
+                <li><a href="#" className="hover:text-violet-400 transition-colors">Contact Us</a></li>
+                <li><a href="#" className="hover:text-violet-400 transition-colors">Community</a></li>
+                <li><a href="#" className="hover:text-violet-400 transition-colors">Status</a></li>
               </ul>
             </div>
             
             <div>
               <h4 className="font-semibold mb-4">Company</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">About</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Press</a></li>
+                <li><a href="#" className="hover:text-violet-400 transition-colors">About</a></li>
+                <li><a href="#" className="hover:text-violet-400 transition-colors">Blog</a></li>
+                <li><a href="#" className="hover:text-violet-400 transition-colors">Careers</a></li>
+                <li><a href="#" className="hover:text-violet-400 transition-colors">Press</a></li>
               </ul>
             </div>
           </div>
@@ -622,19 +625,19 @@ export default function LandingPage() {
           
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm mb-4 md:mb-0">
-              © 2024 MindSpace. All rights reserved.
+              &copy; 2024 MoonDairy. All rights reserved.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-teal-400 transition-colors">
+              <a href="#" className="text-gray-400 hover:text-violet-400 transition-colors">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-teal-400 transition-colors">
+              <a href="#" className="text-gray-400 hover:text-violet-400 transition-colors">
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-teal-400 transition-colors">
+              <a href="#" className="text-gray-400 hover:text-violet-400 transition-colors">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-400 hover:text-teal-400 transition-colors">
+              <a href="#" className="text-gray-400 hover:text-violet-400 transition-colors">
                 <Linkedin className="w-5 h-5" />
               </a>
             </div>

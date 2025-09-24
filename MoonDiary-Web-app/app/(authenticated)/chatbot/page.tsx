@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Brain, Send, User, Bot, Heart, Sparkles } from "lucide-react";
+import { Brain, Send, User, Bot, Heart, Sparkles, Mic } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Message {
@@ -29,6 +29,9 @@ export default function ChatbotPage() {
   const [isTyping, setIsTyping] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
 
   useEffect(() => {
     scrollToBottom();
@@ -144,6 +147,33 @@ export default function ChatbotPage() {
     }
   };
 
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      chunksRef.current = [];
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+      mediaRecorder.onstop = async () => {
+        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        // Placeholder: send blob to STT service, setInputMessage(result)
+        toast({ title: "Recorded", description: "Audio captured. Integrate STT to transcribe." });
+      };
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (e) {
+      toast({ title: "Microphone error", description: "Please allow microphone access", variant: "destructive" });
+    }
+  };
+
+  const stopRecording = () => {
+    mediaRecorderRef.current?.stop();
+    mediaRecorderRef.current?.stream.getTracks().forEach((t) => t.stop());
+    setIsRecording(false);
+  };
+
   const quickPrompts = [
     "I'm feeling stressed about work",
     "I need help managing my anxiety",
@@ -154,7 +184,7 @@ export default function ChatbotPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-gray-900 dark:via-purple-900 dark:to-blue-900">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-6 max-w-4xl">
         {/* Header */}
         <motion.div
@@ -164,14 +194,14 @@ export default function ChatbotPage() {
           className="mb-8 text-center"
         >
           <div className="flex items-center justify-center space-x-3 mb-4">
-            <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full">
-              <Brain className="w-8 h-8 text-white" />
+            <div className="p-3 bg-foreground rounded-full">
+              <Brain className="w-8 h-8 text-background" />
             </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold text-foreground">
               AI Mental Health Companion
             </h1>
           </div>
-          <p className="text-gray-600 dark:text-gray-300 text-lg">
+          <p className="text-muted-foreground text-lg">
             A safe space to share your thoughts and feelings
           </p>
         </motion.div>
@@ -184,10 +214,10 @@ export default function ChatbotPage() {
             transition={{ delay: 0.2 }}
             className="lg:col-span-1"
           >
-            <Card className="h-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+            <Card className="h-full bg-card">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center space-x-2">
-                  <Sparkles className="w-5 h-5 text-yellow-500" />
+                  <Sparkles className="w-5 h-5" />
                   <span>Quick Prompts</span>
                 </CardTitle>
               </CardHeader>
@@ -199,7 +229,7 @@ export default function ChatbotPage() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setInputMessage(prompt)}
-                      className="w-full text-left p-3 text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                      className="w-full text-left p-3 text-sm bg-secondary hover:bg-accent rounded-lg transition-colors"
                     >
                       {prompt}
                     </motion.button>
@@ -216,10 +246,10 @@ export default function ChatbotPage() {
             transition={{ delay: 0.3 }}
             className="lg:col-span-3"
           >
-            <Card className="h-[600px] flex flex-col bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-              <CardHeader className="border-b border-gray-200 dark:border-gray-700">
+            <Card className="h-[600px] flex flex-col bg-card">
+              <CardHeader className="border-b">
                 <CardTitle className="flex items-center space-x-2">
-                  <Heart className="w-5 h-5 text-red-500" />
+                  <Heart className="w-5 h-5" />
                   <span>Conversation</span>
                 </CardTitle>
               </CardHeader>
@@ -238,10 +268,10 @@ export default function ChatbotPage() {
                           className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
                         >
                           <div
-                            className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                          className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
                               message.sender === "user"
-                                ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                                : "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
+                                ? "bg-foreground text-background"
+                                : "bg-secondary text-foreground"
                             }`}
                           >
                             <div className="flex items-start space-x-2">
@@ -285,7 +315,7 @@ export default function ChatbotPage() {
                 </ScrollArea>
 
                 {/* Input Area */}
-                <div className="border-t border-gray-200 dark:border-gray-700 p-4">
+                <div className="border-t p-4">
                   <div className="flex space-x-2">
                     <Input
                       type="text"
@@ -293,14 +323,13 @@ export default function ChatbotPage() {
                       value={inputMessage}
                       onChange={(e) => setInputMessage(e.target.value)}
                       onKeyPress={handleKeyPress}
-                      className="flex-1 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                      className="flex-1 bg-background"
                       disabled={isTyping}
                     />
-                    <Button
-                      onClick={handleSendMessage}
-                      disabled={!inputMessage.trim() || isTyping}
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                    >
+                    <Button type="button" variant={isRecording ? "outline" : "default"} onClick={isRecording ? stopRecording : startRecording}>
+                      <Mic className="w-4 h-4" />
+                    </Button>
+                    <Button onClick={handleSendMessage} disabled={!inputMessage.trim() || isTyping}>
                       <Send className="w-4 h-4" />
                     </Button>
                   </div>
@@ -317,9 +346,9 @@ export default function ChatbotPage() {
           transition={{ delay: 0.5 }}
           className="mt-8 text-center"
         >
-          <Card className="bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
+          <Card className="bg-card">
             <CardContent className="p-4">
-              <p className="text-sm text-yellow-800 dark:text-yellow-200">
+              <p className="text-sm text-foreground">
                 <strong>Important:</strong> This AI companion is for emotional support and is not a substitute for professional mental health care. 
                 If you're experiencing a mental health crisis, please reach out to a mental health professional or crisis hotline.
               </p>
