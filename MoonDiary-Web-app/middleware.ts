@@ -3,13 +3,9 @@ import { NextResponse } from "next/server";
 
 const publicRoutes = ["/", "/api/webhook/register", "/sign-in", "/sign-up"];
 
-/**
- * @deprecated Use `newFunction()` instead.
- */
 export default authMiddleware({
   publicRoutes,
   async afterAuth(auth, req) {
-    // Use 'auth' for authentication details and 'req' for NextRequest
     // Handle unauthenticated users trying to access protected routes
     if (!auth.userId && !publicRoutes.includes(req.nextUrl.pathname)) {
       return NextResponse.redirect(new URL("/sign-in", req.url));
@@ -17,7 +13,7 @@ export default authMiddleware({
 
     if (auth.userId) {
       try {
-        const user = await clerkClient.users.getUser(auth.userId); // Fetch user data from Clerk
+        const user = await clerkClient.users.getUser(auth.userId);
         const role = user.publicMetadata.role as string | undefined;
 
         // Admin role redirection logic
@@ -30,8 +26,18 @@ export default authMiddleware({
           return NextResponse.redirect(new URL("/dashboard", req.url));
         }
 
-        // Redirect authenticated users trying to access public routes
-        if (publicRoutes.includes(req.nextUrl.pathname)) {
+        // Redirect authenticated users away from auth pages
+        if (["/sign-in", "/sign-up"].includes(req.nextUrl.pathname)) {
+          return NextResponse.redirect(
+            new URL(
+              role === "admin" ? "/admin/dashboard" : "/dashboard",
+              req.url
+            )
+          );
+        }
+
+        // Redirect authenticated users from home page to dashboard
+        if (req.nextUrl.pathname === "/" && auth.userId) {
           return NextResponse.redirect(
             new URL(
               role === "admin" ? "/admin/dashboard" : "/dashboard",
