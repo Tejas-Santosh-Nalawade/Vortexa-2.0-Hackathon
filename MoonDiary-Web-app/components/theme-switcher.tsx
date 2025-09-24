@@ -16,12 +16,12 @@ export function ThemeSwitcher() {
   const { theme, setTheme, colorScheme, setColorScheme } = useTheme()
 
   const colorSchemes = [
-    { name: "teal", color: "bg-teal-500" },
-    { name: "lavender", color: "bg-purple-500" },
-    { name: "pastel", color: "bg-pink-500" },
-    { name: "ocean", color: "bg-blue-500" },
-    { name: "sunset", color: "bg-orange-500" },
-    { name: "forest", color: "bg-green-500" },
+    { name: "teal", color: "bg-foreground" },
+    { name: "lavender", color: "bg-foreground" },
+    { name: "pastel", color: "bg-foreground" },
+    { name: "ocean", color: "bg-foreground" },
+    { name: "sunset", color: "bg-foreground" },
+    { name: "forest", color: "bg-foreground" },
   ]
 
   return (

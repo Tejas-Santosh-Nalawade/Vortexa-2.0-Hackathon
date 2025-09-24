@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import prisma from "/lib/prisma";
-import { decryptString } from "/lib/encryption";
+import prisma from "@/lib/prisma";
+import { decryptString } from "@/lib/encryption";
 
 export async function GET(req: NextRequest) {
   const { userId } = auth();
