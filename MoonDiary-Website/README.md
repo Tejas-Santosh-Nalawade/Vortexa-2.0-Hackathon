@@ -50,7 +50,7 @@ A secure, AI-powered journaling web app with mood tracking, todos, and Gemini AI
    Create a `.env` file in `/server`:
 
    ```
-   MONGODB_URI=mongodb://localhost:27017/journals
+   MONGODB_URI=mongodb://Moon Diary/journals
    GEMINI_API_KEY=your_gemini_api_key
    JOURNAL_SECRET_KEY=your_32_char_secret_key
    SESSION_SECRET=your_session_secret

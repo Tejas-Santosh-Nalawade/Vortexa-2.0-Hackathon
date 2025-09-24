@@ -15,7 +15,7 @@ const aiRoutes = require('./routes/ai');
 
 const app = express();
 
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGODB_URI)
 .then(() => {
   console.log('✅ Connected to MongoDB');
 }).catch((err) => {
@@ -23,7 +23,7 @@ mongoose.connect(process.env.MONGO_URI)
 });
 
 const allowedOrigins = [
-  'https://Moon Diary-seven.vercel.app', 
+  'https://vortexa-2-0-hackathon.vercel.app/', 
   'http://localhost:5173',
 ];
 
@@ -52,7 +52,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
-      mongoUrl: process.env.MONGO_URI || 'mongodb://localhost:27017/journal',
+      mongoUrl: process.env.MONGODB_URI,
       collectionName: 'sessions',
     }),
     cookie: {
