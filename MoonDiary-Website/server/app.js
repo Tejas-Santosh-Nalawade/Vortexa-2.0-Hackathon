@@ -23,7 +23,7 @@ mongoose.connect(process.env.MONGODB_URI)
 });
 
 const allowedOrigins = [
-  'https://vortexa-2-0-hackathon.vercel.app/', 
+  'https://vortexa-2-0-hackathon.vercel.app', 
   'https://journee-498435245361.asia-south1.run.app',
   'http://localhost:5173',
 ];
@@ -44,6 +44,7 @@ app.use(cors(corsOptions));
 app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.options('*', cors(corsOptions));
 
 app.set('trust proxy', 1);
 
