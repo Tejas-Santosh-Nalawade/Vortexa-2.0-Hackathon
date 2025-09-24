@@ -15,39 +15,43 @@ const aiRoutes = require('./routes/ai');
 
 const app = express();
 
-mongoose.connect(process.env.MONGODB_URI)
-.then(() => {
-  console.log('✅ Connected to MongoDB');
-}).catch((err) => {
-  console.error('❌ Failed to connect to MongoDB', err);
-});
+// --- MongoDB connection ---
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('✅ Connected to MongoDB'))
+.catch(err => console.error('❌ Failed to connect to MongoDB', err));
 
+// --- CORS configuration ---
 const allowedOrigins = [
   'https://vortexa-2-0-hackathon.vercel.app', 
-  'https://journee-498435245361.asia-south1.run.app',
   'https://vortexa-2-0-hackathon-7hnq.vercel.app',
   'http://localhost:5173',
 ];
 
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
-};
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+}));
 
-app.use(cors(corsOptions));
+// --- Middleware ---
 app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.options('*', cors(corsOptions));
 
-app.set('trust proxy', 1);
+// Handle preflight requests for all routes
+app.options('*', cors());
+
+// --- Session configuration ---
+app.set('trust proxy', 1); // needed if behind a proxy (like Vercel)
 
 app.use(
   session({
@@ -60,25 +64,24 @@ app.use(
     }),
     cookie: {
       httpOnly: true,
-      secure: true,
-      sameSite: 'none',
+      secure: process.env.NODE_ENV === 'production', // true in prod
+      sameSite: 'none', // needed for cross-origin cookies
       maxAge: 30 * 24 * 60 * 60 * 1000,
     },
   })
 );
 
-// Passport initialization
+// --- Passport ---
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get('/', (req, res) => {
-  res.send('Hello, World!');
-});
-
+// --- Routes ---
+app.get('/', (req, res) => res.send('Hello, World!'));
 app.use('/api/users', userRoutes);
 app.use('/api/ai', aiRoutes);
 
-const PORT = process.env.PORT;
+// --- Start server ---
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on http://localhost:${PORT}`);
 });
